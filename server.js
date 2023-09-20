@@ -21,6 +21,9 @@ if (!api_key) {
 
 
 app.use('/', proxy('api.openai.com', {
+  filter: (req, res) => {
+    return req.path != '/';
+  },
   https: true,
   proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
     proxyReqOpts.headers['Authorization'] = 'Bearer ' + api_key;
@@ -31,6 +34,10 @@ app.use('/', proxy('api.openai.com', {
 app.use(cors({
   origin: '*'
 }));
+
+app.all('/', (req, res) => {
+  res.send('Running');
+});
 
 app.listen(port, () => {
   console.log('Server listening on port ' + port);
