@@ -28,6 +28,19 @@ app.use('/', proxy('api.openai.com', {
     return req.path != '/';
   },
   https: true,
+  proxyReqBodyDecorator: function(bodyContent, srcReq) {
+    try {
+      let logText = 'Request from ' + srcReq.ip;
+      if (srcReq.headers['x-forwarded-for']) {
+        logText += ', x-forwarded-for ' + srcReq.headers['x-forwarded-for'];
+      }
+      logText += ' at ' + (new Date).toString() + ': ' + bodyContent.toString();
+      console.log(logText);
+      //fs.appendFileSync('log.txt', logText + '\n');
+    } catch (e) {
+    }
+    return bodyContent;
+  },
   proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
     proxyReqOpts.headers['Authorization'] = 'Bearer ' + api_key;
     return proxyReqOpts;
