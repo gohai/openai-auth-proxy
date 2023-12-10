@@ -1,4 +1,7 @@
 require('dotenv').config()
+const fs = require('fs');
+const http = require('http');
+const https = require('https');
 const express = require('express');
 const cors = require('cors');
 const proxy = require('express-http-proxy');
@@ -39,6 +42,16 @@ app.all('/', (req, res) => {
   res.send('Running');
 });
 
-app.listen(port, () => {
-  console.log('Server listening on port ' + port);
-});
+
+try {
+  let privateKey = fs.readFileSync('certs/privkey.pem', 'utf8');
+  let certificate = fs.readFileSync('certs/fullchain.pem', 'utf8');
+  let server = https.createServer({ key: privateKey, cert: certificate }, app);
+  server.listen(port);
+  console.log('Server listening on port ' + port + ' for HTTPS');
+} catch (e) {
+  console.warn('No TLS certificates available');
+  let server = http.createServer(app);
+  server.listen(port);
+  console.log('Server listening on port ' + port + ' for HTTP');
+}
