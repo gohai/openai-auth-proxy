@@ -28,6 +28,7 @@ app.use('/', proxy('api.openai.com', {
     return req.path != '/';
   },
   https: true,
+  limit: '10mb',
   proxyReqBodyDecorator: function(bodyContent, srcReq) {
     try {
       let logText = 'Request from ' + srcReq.ip;
